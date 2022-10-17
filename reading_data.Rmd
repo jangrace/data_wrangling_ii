@@ -113,7 +113,13 @@ brfss_2010 =
   GET("https://chronicdata.cdc.gov/resource/acme-vg9e.csv", 
       query = list("$limit" = 5000)) %>%  #this will get us 5000 rows of data rather than 1000
   content("parsed") #parse then will become a tibble; however, number of rows is different from actual data...Use "?GET" for further guidance
+```
 
-  
+## some data aren't so nice...
+let's look at Pokemon...
+
+```{r}
+pokemon =
+  GET("https://pokeapi.co/api/v2/pokemon/1")
 ```
 
