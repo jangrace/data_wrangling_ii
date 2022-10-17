@@ -85,3 +85,47 @@ swm_df =
     runtime = runtime_vec
   )
 ```
+
+## API (nyc water)
+
+``` r
+nyc_water =
+  GET("https://data.cityofnewyork.us/resource/ia2d-e54m.csv")
+```
+
+1.  parse csv to convert to tibble
+2.  use content to parse as columns
+3.  use as_tibble
+
+``` r
+nyc_water =
+  GET("https://data.cityofnewyork.us/resource/ia2d-e54m.csv") %>% 
+  content("parsed")
+```
+
+    ## Rows: 43 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (4): year, new_york_city_population, nyc_consumption_million_gallons_per...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+## BRFSS dataset (API)
+
+``` r
+brfss_2010 = 
+  GET("https://chronicdata.cdc.gov/resource/acme-vg9e.csv", 
+      query = list("$limit" = 5000)) %>%  #this will get us 5000 rows of data rather than 1000
+  content("parsed") #parse then will become a tibble; however, number of rows is different from actual data...Use "?GET" for further guidance
+```
+
+    ## Rows: 5000 Columns: 23
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (16): locationabbr, locationdesc, class, topic, question, response, data...
+    ## dbl  (6): year, sample_size, data_value, confidence_limit_low, confidence_li...
+    ## lgl  (1): locationid
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
