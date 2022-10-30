@@ -165,3 +165,27 @@ data_marj =
 ) %>% 
   filter(!State%in%c("Total U.S.", "Northeast", "Midwest", "South", "West"))
 ```
+
+## NSDUH – factors
+
+``` r
+data_marj %>% 
+filter(age == "12-17") %>%
+mutate(State = fct_relevel(State, "Texas", "Oklahoma")) %>% #convert state to factor
+ggplot(aes(x = State, y = percent, color = year)) +
+geom_point() +
+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+<img src="data_wrang_ii_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
+
+``` r
+data_marj %>% 
+filter(age == "12-17") %>%
+mutate(State = fct_reorder(State, percent)) %>% #arrange from lowest to highest percent
+ggplot(aes(x = State, y = percent, color = year)) +
+geom_point() +
+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+<img src="data_wrang_ii_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
