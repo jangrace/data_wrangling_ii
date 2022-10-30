@@ -188,4 +188,98 @@ geom_point() +
 theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
-<img src="data_wrang_ii_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
+<img src="data_wrang_ii_files/figure-gfm/fct_reorder-1.png" width="90%" />
+
+## Weather data
+
+``` r
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+    ## Registered S3 method overwritten by 'hoardr':
+    ##   method           from
+    ##   print.cache_info httr
+
+    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/USW00094728.dly
+
+    ## date created (size, mb): 2022-10-17 01:02:59 (8.411)
+
+    ## file min/max dates: 1869-01-01 / 2022-10-31
+
+    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/USC00519397.dly
+
+    ## date created (size, mb): 2022-10-17 01:03:09 (1.697)
+
+    ## file min/max dates: 1965-01-01 / 2020-02-29
+
+    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/USS0023B17S.dly
+
+    ## date created (size, mb): 2022-10-17 01:03:26 (0.952)
+
+    ## file min/max dates: 1999-09-01 / 2022-10-31
+
+``` r
+weather_df %>%
+  mutate(name = fct_relevel(name, "Waikiki_HA")) %>% #make to factor, then make Hawaii be first
+  ggplot(aes(x = name, y = tmax)) +
+  geom_violin()
+```
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_ydensity).
+
+<img src="data_wrang_ii_files/figure-gfm/unnamed-chunk-11-1.png" width="90%" />
+
+``` r
+weather_df %>%
+  mutate(name = fct_reorder(name, tmax)) %>% #make to factor, order acc. to tmax
+  ggplot(aes(x = name, y = tmax)) +
+  geom_violin()
+```
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_ydensity).
+
+<img src="data_wrang_ii_files/figure-gfm/unnamed-chunk-12-1.png" width="90%" />
+
+``` r
+weather_df %>% 
+  lm(tmax ~ name, data = .) # lm = linear model, tmax = outcome, name = predictor
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ name, data = .)
+    ## 
+    ## Coefficients:
+    ##      (Intercept)    nameWaikiki_HA  nameWaterhole_WA  
+    ##           17.366            12.291            -9.884
+
+``` r
+# no central park coeff b/c central park = reference group
+
+# reorder. now, waterhole = reference group
+weather_df %>% 
+  mutate(name = fct_reorder(name, tmax)) %>% 
+  lm(tmax ~ name, data = .)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ name, data = .)
+    ## 
+    ## Coefficients:
+    ##        (Intercept)  nameCentralPark_NY      nameWaikiki_HA  
+    ##              7.482               9.884              22.176

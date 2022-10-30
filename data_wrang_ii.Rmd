@@ -149,13 +149,58 @@ geom_point() +
 theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
-```{r}
+```{r fct_reorder}
 data_marj %>% 
 filter(age == "12-17") %>%
 mutate(State = fct_reorder(State, percent)) %>% #arrange from lowest to highest percent
 ggplot(aes(x = State, y = percent, color = year)) +
 geom_point() +
 theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
 
+## Weather data
+
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+```{r}
+weather_df %>%
+  mutate(name = fct_relevel(name, "Waikiki_HA")) %>% #make to factor, then make Hawaii be first
+  ggplot(aes(x = name, y = tmax)) +
+  geom_violin()
+```
+
+```{r}
+weather_df %>%
+  mutate(name = fct_reorder(name, tmax)) %>% #make to factor, order acc. to tmax
+  ggplot(aes(x = name, y = tmax)) +
+  geom_violin()
+```
+
+```{r linear model}
+weather_df %>% 
+  lm(tmax ~ name, data = .) # lm = linear model, tmax = outcome, name = predictor
+
+# no central park coeff b/c central park = reference group
+
+# reorder. now, waterhole = reference group
+weather_df %>% 
+  mutate(name = fct_reorder(name, tmax)) %>% 
+  lm(tmax ~ name, data = .)
 ```
 
